@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Pag-IBIG · High-Fidelity Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0A4B7A;
+      --primary-dark: #063a60;
+      --accent: #F5A623;
+      --bg: #F8F9FA;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 14px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      --transition: 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .app-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    /* Brand header */
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--primary);
+    }
+    .logo-icon {
+      background: rgba(10, 75, 122, 0.1);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+    .status-badge {
+      background: #eef2ff;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Views */
+    .view {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .view.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .card:hover {
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Auth */
+    .auth-container {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 32px;
+    }
+    .auth-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .input-group {
+      margin-bottom: 18px;
+    }
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10, 75, 122, 0.2);
+    }
+    .btn {
+      border: none;
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: #1f2937;
+    }
+    .btn-accent:hover {
+      background: #e69500;
+      transform: translateY(-2px);
+    }
+    .feedback {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .feedback.error { color: var(--error); }
+    .feedback.success { color: var(--success); }
+
+    /* Welcome */
+    .welcome-card {
+      max-width: 680px;
+      margin: 30px auto;
+      padding: 32px;
+    }
+    .terms-box {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+      border-left: 4px solid var(--accent);
+    }
+
+    /* Dashboard */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .dashboard-header h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .feature-card {
+      padding: 20px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: #cbd5e1;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: #eef2ff;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 16px;
+      color: var(--primary);
+      font-size: 1.3rem;
+    }
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+    .feature-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .balance-highlight {
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+
+    /* Services table section */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .recent-date {
+      background: #eef2ff;
+      padding: 10px 16px;
+      border-radius: 40px;
+      display: inline-block;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filters .input-group {
+      margin-bottom: 0;
+      flex: 1;
+      min-width: 160px;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th {
+      text-align: left;
+      padding: 14px 12px;
+      background: #f8fafc;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    td {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .status-paid { color: var(--success); font-weight: 700; }
+    .status-pending { color: #f97316; font-weight: 700; }
+
+    /* Footer sections (FAQ, Contact, Branch) */
+    .info-sections {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 32px 0 24px;
+    }
+    .info-card {
+      padding: 20px;
+      cursor: pointer;
+    }
+    .info-card h4 {
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    /* Global Footer */
+    .global-footer {
+      margin-top: 40px;
+      padding: 24px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.open {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      max-width: 500px;
+      width: 90%;
+      border-radius: 24px;
+      padding: 24px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      opacity: 0;
+      transition: 0.2s;
+      pointer-events: none;
+      z-index: 1100;
+    }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1000px) {
+      .dashboard-grid { grid-template-columns: repeat(2,1fr); }
+      .info-sections { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="brand-header">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fa-solid fa-building-columns"></i></div>
+      <span>Virtual Pag-IBIG</span>
+    </div>
+    <div class="status-badge" id="sessionChip">Guest</div>
+  </div>
+
+  <!-- Login View -->
+  <section id="loginView" class="view active">
+    <div class="card auth-container">
+      <h1 class="auth-title">Welcome back</h1>
+      <p style="margin-bottom: 24px;">Sign in to your Virtual Pag-IBIG account</p>
+      <div class="input-group">
+        <label>Email address</label>
+        <input id="email" type="email" value="demo@pagibig.com">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input id="password" type="password" value="password123">
+      </div>
+      <button id="loginBtn" class="btn btn-primary">Log in</button>
+      <div id="loginFeedback" class="feedback"></div>
+    </div>
+  </section>
+
+  <!-- Welcome / Terms View -->
+  <section id="welcomeView" class="view">
+    <div class="card welcome-card">
+      <h2 style="color: var(--primary);">Terms & Conditions</h2>
+      <p>Please review and accept to continue.</p>
+      <div class="terms-box">
+        <strong>Virtual Pag-IBIG Demo Agreement</strong><br>
+        This prototype is for demonstration purposes only. All transaction data is simulated and does not reflect real financial records. By clicking "I Agree", you confirm that you understand this is a user experience prototype.
+      </div>
+      <button id="agreeBtn" class="btn btn-accent"><i class="fa-regular fa-circle-check"></i> I Agree</button>
+    </div>
+  </section>
+
+  <!-- Dashboard View -->
+  <section id="dashboardView" class="view">
+    <div class="dashboard-header">
+      <h2>Dashboard</h2>
+      <button id="openProfileBtn" class="btn btn-accent"><i class="fa-regular fa-user"></i> Profile</button>
+    </div>
+
+    <!-- 8-card grid (complete medium-fidelity spec) -->
+    <div class="dashboard-grid">
+      <div class="card feature-card" data-action="services">
+        <div class="feature-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+        <h3>Services</h3>
+        <p>Transaction history & payments</p>
+      </div>
+      <div class="card feature-card" data-action="profile">
+        <div class="feature-icon"><i class="fa-solid fa-id-card"></i></div>
+        <h3>User Profile</h3>
+        <p>Manage your account</p>
+      </div>
+      <div class="card feature-card" data-action="regular">
+        <div class="feature-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+        <h3>Regular Savings</h3>
+        <p>Balance: ₱12,450.00</p>
+        <div class="balance-highlight">+₱500 last month</div>
+      </div>
+      <div class="card feature-card" data-action="mp2">
+        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>MP2 Savings</h3>
+        <p>Balance: ₱85,200.00</p>
+        <div class="balance-highlight">Dividend rate: 6.8%</div>
+      </div>
+      <div class="card feature-card" data-action="loan">
+        <div class="feature-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+        <h3>Loan Balances</h3>
+        <p>Housing: ₱320k | MPL: ₱12k</p>
+      </div>
+      <div class="card feature-card" data-action="faq">
+        <div class="feature-icon"><i class="fa-regular fa-circle-question"></i></div>
+        <h3>FAQ</h3>
+        <p>Frequently asked questions</p>
+      </div>
+      <div class="card feature-card" data-action="contact">
+        <div class="feature-icon"><i class="fa-regular fa-envelope"></i></div>
+        <h3>Contact Us</h3>
+        <p>Support & inquiries</p>
+      </div>
+      <div class="card feature-card" data-action="branch">
+        <div class="feature-icon"><i class="fa-solid fa-location-dot"></i></div>
+        <h3>Branch Locator</h3>
+        <p>Find nearest branch</p>
+      </div>
+    </div>
+
+    <!-- Services / History section with Most Recent Contribution Date -->
+    <div id="servicesSection">
+      <div class="section-title">📋 Contribution History & Payments</div>
+      <div class="recent-date">
+        <i class="fa-regular fa-calendar"></i> Most recent contribution: <strong id="recentDate">April 14, 2026</strong>
+      </div>
+      <div class="card" style="padding: 24px;">
+        <div class="filters">
+          <div class="input-group">
+            <label>Filter by description</label>
+            <select id="descriptionFilter">
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Year</label>
+            <select id="yearFilter">
+              <option value="all">All years</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Description</th><th>Reference</th><th>Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional info sections for FAQ / Contact / Branch (also reachable via cards) -->
+    <div class="info-sections" id="footerSections">
+      <div class="card info-card" id="faqSection">
+        <h4><i class="fa-regular fa-circle-question"></i> Frequently Asked Questions</h4>
+        <p>How to apply for MP2? Loan requirements? View answers here.</p>
+      </div>
+      <div class="card info-card" id="contactSection">
+        <h4><i class="fa-regular fa-envelope"></i> Contact Support</h4>
+        <p>Email: support@virtualpagibig.ph | Hotline: (02) 8424-1000</p>
+      </div>
+      <div class="card info-card" id="branchSection">
+        <h4><i class="fa-solid fa-location-dot"></i> Branch Locator</h4>
+        <p>Find the nearest Pag-IBIG branch or virtual service center.</p>
+      </div>
+    </div>
+
+    <!-- Global Footer -->
+    <div class="global-footer">
+      <div class="footer-links">
+        <a href="#" data-footer="faq">FAQ</a>
+        <a href="#" data-footer="contact">Contact Us</a>
+        <a href="#" data-footer="branch">Branch Locator</a>
+      </div>
+      <p style="margin-top: 16px; font-size: 0.75rem; color: #94a3b8;">© 2025 Virtual Pag-IBIG · Prototype for presentation</p>
+    </div>
+  </section>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between;">
+      <h3>User Profile & Settings</h3>
+      <button id="closeModalBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+    <div style="margin: 12px 0;"><strong>Juan Dela Cruz</strong><br>MID: 1234-5678-9012</div>
+    <h4>Change Password</h4>
+    <div class="input-group"><input type="password" id="newPass" placeholder="New password (min 7 chars)"></div>
+    <div class="input-group"><input type="password" id="confirmPass" placeholder="Confirm password"></div>
+    <div id="passValidation" style="font-size:0.75rem;"></div>
+    <button id="logoutFromModal" class="btn btn-primary" style="margin-top: 20px;">Log out</button>
+  </div>
+</div>
+
+<div id="toast" class="toast">Message</div>
+
+<script>
+  // Mock data
+  const transactions = [
+    { date: "2026-04-14", description: "Housing Loan Payment", ref: "HL-3981", amount: 6200, status: "Paid" },
+    { date: "2026-03-22", description: "MP2 Voluntary", ref: "MP2-8821", amount: 5000, status: "Paid" },
+    { date: "2026-03-01", description: "Regular Savings", ref: "REG-5520", amount: 1200, status: "Paid" },
+    { date: "2025-12-05", description: "MP2 Dividend", ref: "DIV-12024", amount: 3150, status: "Paid" },
+    { date: "2025-11-17", description: "Loan Payment", ref: "LN-6722", amount: 4800, status: "Paid" },
+    { date: "2025-09-10", description: "Membership Fee", ref: "MEM-101", amount: 200, status: "Pending" },
+  ];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  let descriptionFilter = document.getElementById("descriptionFilter");
+  let yearFilter = document.getElementById("yearFilter");
+  let historyBody = document.getElementById("historyTable");
+  const recentDateSpan = document.getElementById("recentDate");
+
+  function renderTable() {
+    const descVal = descriptionFilter.value;
+    const yearVal = yearFilter.value;
+    let filtered = [...transactions];
+    if (descVal !== "all") filtered = filtered.filter(t => t.description === descVal);
+    if (yearVal !== "all") filtered = filtered.filter(t => t.date.startsWith(yearVal));
+    if (filtered.length) {
+      const sorted = filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+      recentDateSpan.innerText = formatDate(sorted[0].date);
+    } else {
+      recentDateSpan.innerText = "No records";
+    }
+    historyBody.innerHTML = filtered.map(t => `
+      <tr>
+        <td>${formatDate(t.date)}</td>
+        <td>${t.description}</td>
+        <td>${t.ref}</td>
+        <td>₱${t.amount.toLocaleString()}</td>
+        <td class="${t.status === 'Paid' ? 'status-paid' : 'status-pending'}">${t.status}</td>
+      </tr>
+    `).join("");
+  }
+
+  function populateFilters() {
+    const descriptions = [...new Set(transactions.map(t => t.description))];
+    descriptions.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      descriptionFilter.appendChild(opt);
+    });
+    const years = [...new Set(transactions.map(t => t.date.slice(0,4)))];
+    years.sort().reverse().forEach(y => {
+      const opt = document.createElement("option");
+      opt.value = y; opt.textContent = y;
+      yearFilter.appendChild(opt);
+    });
+  }
+
+  // VIEW management
+  const views = {
+    login: document.getElementById("loginView"),
+    welcome: document.getElementById("welcomeView"),
+    dashboard: document.getElementById("dashboardView")
+  };
+  function showView(viewName) {
+    Object.values(views).forEach(v => v.classList.remove("active"));
+    views[viewName].classList.add("active");
+  }
+
+  let loggedIn = false;
+  let termsAccepted = false;
+
+  function checkSession() {
+    loggedIn = sessionStorage.getItem("loggedIn") === "true";
+    termsAccepted = localStorage.getItem("termsAccepted") === "true";
+    document.getElementById("sessionChip").innerText = loggedIn ? "Active session" : "Guest";
+    if (!loggedIn) showView("login");
+    else if (!termsAccepted) showView("welcome");
+    else showView("dashboard");
+  }
+
+  // Login logic
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const email = document.getElementById("email").value;
+    const pwd = document.getElementById("password").value;
+    const feedback = document.getElementById("loginFeedback");
+    if (email === "demo@pagibig.com" && pwd === "password123") {
+      sessionStorage.setItem("loggedIn", "true");
+      feedback.className = "feedback success";
+      feedback.innerText = "Success! Redirecting...";
+      setTimeout(() => {
+        if (localStorage.getItem("termsAccepted") === "true") showView("dashboard");
+        else showView("welcome");
+        checkSession();
+      }, 500);
+    } else {
+      feedback.className = "feedback error";
+      feedback.innerText = "Invalid credentials. Use demo@pagibig.com / password123";
+    }
+  });
+
+  document.getElementById("agreeBtn").addEventListener("click", () => {
+    localStorage.setItem("termsAccepted", "true");
+    sessionStorage.setItem("loggedIn", "true");
+    showView("dashboard");
+    checkSession();
+    showToast("Terms accepted. Welcome!");
+  });
+
+  // Profile modal
+  const modal = document.getElementById("profileModal");
+  const openProfile = document.getElementById("openProfileBtn");
+  const closeModal = document.getElementById("closeModalBtn");
+  openProfile.addEventListener("click", () => modal.classList.add("open"));
+  closeModal.addEventListener("click", () => modal.classList.remove("open"));
+  window.addEventListener("click", e => { if(e.target === modal) modal.classList.remove("open"); });
+
+  // Password validation inside modal
+  const newPass = document.getElementById("newPass");
+  const confirmPass = document.getElementById("confirmPass");
+  const passValidDiv = document.getElementById("passValidation");
+  function validatePass() {
+    if (newPass.value.length > 6 && newPass.value === confirmPass.value) passValidDiv.innerText = "✓ Password valid", passValidDiv.style.color = "green";
+    else if (newPass.value.length && newPass.value !== confirmPass.value) passValidDiv.innerText = "✗ Passwords do not match", passValidDiv.style.color = "red";
+    else if (newPass.value.length && newPass.value.length <= 6) passValidDiv.innerText = "✗ Minimum 7 characters", passValidDiv.style.color = "red";
+    else passValidDiv.innerText = "";
+  }
+  newPass.addEventListener("input", validatePass);
+  confirmPass.addEventListener("input", validatePass);
+
+  document.getElementById("logoutFromModal").addEventListener("click", () => {
+    sessionStorage.clear();
+    localStorage.removeItem("termsAccepted");
+    modal.classList.remove("open");
+    showView("login");
+    checkSession();
+    showToast("Logged out");
+  });
+
+  // Dashboard card interactions
+  function showToast(msg) {
+    const toastEl = document.getElementById("toast");
+    toastEl.innerText = msg;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 2000);
+  }
+
+  document.querySelectorAll(".feature-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      const action = card.dataset.action;
+      if (action === "services") {
+        document.getElementById("servicesSection").scrollIntoView({ behavior: "smooth" });
+      } else if (action === "profile") {
+        modal.classList.add("open");
+      } else if (action === "regular") {
+        showToast("Regular Savings balance: ₱12,450.00 · Last dividend: ₱500");
+      } else if (action === "mp2") {
+        showToast("MP2 Savings: ₱85,200.00 · Dividend rate 6.8% p.a.");
+      } else if (action === "loan") {
+        alert("🏠 Housing loan remaining: ₱320,450.75\n💼 MPL balance: ₱12,200.00");
+      } else if (action === "faq") {
+        document.getElementById("faqSection").scrollIntoView({ behavior: "smooth" });
+      } else if (action === "contact") {
+        document.getElementById("contactSection").scrollIntoView({ behavior: "smooth" });
+      } else if (action === "branch") {
+        document.getElementById("branchSection").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+
+  // Footer links
+  document.querySelectorAll(".footer-links a").forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = link.dataset.footer;
+      if (target === "faq") document.getElementById("faqSection").scrollIntoView({ behavior: "smooth" });
+      else if (target === "contact") document.getElementById("contactSection").scrollIntoView({ behavior: "smooth" });
+      else if (target === "branch") document.getElementById("branchSection").scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
+  // Info cards also clickable
+  document.getElementById("faqSection").addEventListener("click", () => showToast("FAQ: How to register? Visit our help center."));
+  document.getElementById("contactSection").addEventListener("click", () => showToast("Contact us at support@virtualpagibig.ph"));
+  document.getElementById("branchSection").addEventListener("click", () => showToast("Nearest branch: Quezon City Hall, 2nd floor"));
+
+  // Filters
+  descriptionFilter.addEventListener("change", renderTable);
+  yearFilter.addEventListener("change", renderTable);
+
+  populateFilters();
+  renderTable();
+  checkSession();
+</script>
+</body>
+</html>
